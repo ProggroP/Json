@@ -1,2 +1,2 @@
-# first_pebble_app
+# json_pull
 my first pebble app
