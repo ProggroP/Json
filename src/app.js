@@ -1,114 +1,157 @@
-//Requirements
+//json_pull v1.1 - ©bastian meissner 2016. all rights reserved.
+//requirements that make this code run
 var UI = require('ui');
 var ajax = require('ajax');
+var settings = require('settings');
 
-//Variables for getting the Weather
-var weatherkey = '87c21b8d0b617b8ac9240ff198fb6395';
-var weathername = 'Hirschau';
-var weatherurl = 'http://api.openweathermap.org/data/2.5/weather?q=' + weathername + '&appid=' + weatherkey;
-
-//Variables for getting the bitcoin Value
-var bitcoincur = 'EUR';
-var bitcoinurl = 'http://api.bitcoinaverage.com/exchanges/' + bitcoincur;
-
-//Variables for getting twitter trends
-var twittertrendsurl = 'http://api.whatthetrend.com/api/v2/trends.json';
-
-//Weather Menu
-var weathercard = new UI.Card({
-   backgroundcolor: '#7f8c8d',
-   textColor: '#d35400',
-   title:'Weather',
-   subtitle:'Fetching...'
-});
-
-//Bitcoin Menu
-var bitcoincard = new UI.Card({
-   backgroundcolor: '#7f8c8d',
-   textColor: '#d35400',
-   title:'Bitcoin Value',
-   subtitle:'Fetching...'
-});
-
-//Twitter Trend Menu
-var twittertrendscard = new UI.Card({
-   backgroundcolor: '#7f8c8d',
-   textColor: '#d35400',
-   title:'Twitter Trends',
-   subtitle:'Fetching...'
-});
-
-//Main Menu
+//code for the main menu
 var menu = new UI.Menu({
-   backgroundColor: '#2980b9',
-   textColor: 'black',
-   highlightBackgroundColor: '#2ecc71',
-   highlightTextColor: 'white',
-   sections: [{
-      items: [{
-         title: 'Weather',
-         icon: 'images/menu_icon.png'
-      }, {
-         title: 'Bitcoin Value',
-         icon: 'images/menu_icon.png'
-      }, {
-         title: 'Trending Tweets',
-         icon: 'images/menu_icon.png'
-      }]
-   }]
+  status: false,
+  textColor: 'white',
+  backgroundColor: 'black',
+  highlightTextColor: 'white',
+  highlightBackgroundColor: 'red',
+  sections: [{
+    items: [{
+      title: 'WEATHER'
+    }, {
+      title: 'BITCOIN VALUE'
+    }, {
+      title: 'QUOTES'
+    }]
+  }]
 });
 
-//Code for Main Menu
+//code for the weathercard, it is altered later on
+var weathercard = new UI.Card({
+  status: false,
+  backgroundcolor: '#7f8c8d',
+  textColor: '#d35400',
+  title:'Weather',
+  subtitle:'Fetching...'
+});
+
+//code for the bitcoincard, it is altered later on
+var bitcoincard = new UI.Card({
+  status: false,
+  backgroundcolor: '#7f8c8d',
+  textColor: '#d35400',
+  title:'Bitcoin Value',
+  subtitle:'Fetching...'
+});
+
+//code for the quotecard, it is altered later on
+var quotecard = new UI.Card({
+  status: false,
+  scrollable: true,
+  backgroundcolor: '#7f8c8d',
+  textColor: '#d35400',
+  body: 'Fetching...'
+});
+
+//function for getting data from the settings-page
+settings.config(
+  {url:'https://jsonpull.firebaseapp.com', autosave:true},
+  function(e) {
+    console.log('got the settings.');
+    getweather();
+    if (e.failed){
+      console.log('failed getting the settings.');
+    }
+  }
+);
+
+//function for determining which menu item was clicked
 menu.on('select', function(e){
-   if (e.itemIndex === 0){
-      weathercard.show();
-   } else if (e.itemIndex == 1){
-      bitcoincard.show();
-   } else if (e.itemIndex == 2){
-      twittertrendscard.show();
-   }
+  if (e.itemIndex === 0){
+    weathercard.show();
+  } else if (e.itemIndex == 1){
+    bitcoincard.show();
+  } else if (e.itemIndex == 2){
+    quotecard.show();
+  }
 });
 
 
-//Code for Weather Menu
-ajax(
-  {url: weatherurl, type: 'json'},
-function(data) {
-    console.log("Successfully fetched weather data!");
+//function for getting the weather data
+function getweather(){
+  //define variables that form the url where the app gets the data from
+  var weathername = settings.option("weather");
+  var weatherkey = '87c21b8d0b617b8ac9240ff198fb6395';
+  var weatherurl = 'http://api.openweathermap.org/data/2.5/weather?q=' + weathername + '&appid=' + weatherkey;
+  //if the user didn't set up a specific location of where to get the weatherdata from,
+  //get the weatherdata from Los Angeles.
+  if (weathername === undefined){weathername = "LosAngeles";}
+  //establish a connection
+  ajax({url: weatherurl, type: 'json'},
+  //if the app has gotten data from the connection...
+  function(data) {
+    console.log("got weather data.");
+    //define variables for the data the app just got
     var location = data.name;
-    var temperature = Math.round(data.main.temp - 273.15) + "C";
+    var temperaturecel = Math.round(data.main.temp - 273.15) + "°C";
+    var temperaturefah = Math.round(1.8 * (Math.round(data.main.temp - 273.15)) + 32) + "°F";
     var description = data.weather[0].description;
     description = description.charAt(0).toUpperCase() + description.substring(1);
-    weathercard.subtitle(location + ", " + temperature);
-},
-function(error) {
-   console.log('Failed fetching weather data: ' + error);
-});
+    //show these variables to the user
+    weathercard.title(location);
+    weathercard.subtitle(temperaturecel + " , " + temperaturefah);
+    weathercard.body(description);
+  },
+  //if the app has not gotten data from the connection...
+  function(error) {
+    console.log('failed getting weather data.');
+  });
+}
 
-//Code for BitCoin Menu
-ajax(
-   {url: bitcoinurl, type: 'json'},
-   function(data){
-      console.log("Successfully fetched bitcoin data!");
+//function for getting the quote data
+function getquote(){
+  //define the url, actually not neccessary, we could just write the url into
+  //the ajax call, but this makes the code a lot more modular.
+  var quoteurl = 'http://quotes.rest/qod.json';
+  //establish a connection
+  ajax({url: quoteurl, type: 'json'},
+    //if the app has gotten data from the connection...
+    function(data) {
+      console.log("got quote data.");
+      //define variables for the data the app just got
+      var quote = data.contents.quotes[0].quote;
+      var author = data.contents.quotes[0].author;
+      //show these variables to the user
+      quotecard.title(author);
+      quotecard.body(quote);
+    },
+    //if the app has not gotten data from the connection...
+    function(error) {
+      console.log('failed getting quote data.');
+    });
+}
+
+//function for getting the bitcoin data
+function getbitcoin(){
+  //define variables that form the url
+  var bitcoincur = 'EUR';
+  var bitcoinurl = 'http://api.bitcoinaverage.com/exchanges/' + bitcoincur;
+  //establish a connection
+  ajax({url: bitcoinurl, type: 'json'},
+    //if the app has gotten data from the connection...
+    function(data){
+      console.log("got bitcoin data.");
+      //define variables for the data the app just got
       var ask = data.bitcoin_de.rates.ask;
       var name = data.bitcoin_de.display_name;
-      bitcoincard.subtitle("The current value on " + name + " is " + ask + " EUR.");
-   }
-);
+      //show these variables to the user
+      bitcoincard.subtitle(name + " " + ask + " EUR.");
+      },
+    //if the app has not gotten data from the connection...
+    function(error) {
+      console.log('failed getting bitcoin data.');
+    });
+}
 
-ajax(
-   {url: twittertrendsurl, type: 'json'},
-   function(data){
-      console.log("Successfully fetched trend data!");
-      var date = data.trends.first_trended_at;
-      var name = data.trends.desctription.text;
-      console.log(date);
-      console.log(name);
-   }
-);
-
-
-
+//show the menu
 menu.show();
-
-
+//get the weather-, bitcoin-, and quote data
+getweather();
+getbitcoin();
+getquote();

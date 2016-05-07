@@ -1,10 +1,10 @@
 {
     "appKeys": {},
     "capabilities": [
-        ""
+        "configurable"
     ],
     "companyName": "phntxx",
-    "longName": "my_first_app",
+    "longName": "json_pull",
     "projectType": "pebblejs",
     "resources": {
         "media": [
@@ -29,6 +29,26 @@
                 "type": "font"
             },
             {
+                "file": "images/twttrqr.png",
+                "name": "IMAGES_TWTTRQR_PNG",
+                "type": "png"
+            },
+            {
+                "file": "images/bitcoin_icon.bmp",
+                "name": "IMAGES_BITCOIN_ICON_BMP",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/weather_icon.png",
+                "name": "IMAGES_WEATHER_ICON_PNG",
+                "type": "png"
+            },
+            {
+                "file": "images/bitcoin_icon.png",
+                "name": "IMAGES_BITCOIN_ICON_PNG",
+                "type": "png"
+            },
+            {
                 "file": "images/app_icon.png",
                 "menuIcon": true,
                 "name": "IMAGES_APP_ICON_PNG",
@@ -37,14 +57,15 @@
         ]
     },
     "sdkVersion": "3",
-    "shortName": "my_first_app",
+    "shortName": "json_pull",
     "targetPlatforms": [
         "aplite",
-        "basalt"
+        "basalt",
+        "chalk"
     ],
     "uuid": "15abf0c1-b33f-4356-afce-34dad132ac98",
     "versionCode": 1,
-    "versionLabel": "1.0",
+    "versionLabel": "1.1",
     "watchapp": {
         "hiddenApp": false,
         "watchface": false
