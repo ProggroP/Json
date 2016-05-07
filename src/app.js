@@ -77,7 +77,7 @@ menu.on('select', function(e){
 function getweather(){
   //define variables that form the url where the app gets the data from
   var weathername = settings.option("weather");
-  var weatherkey = '87c21b8d0b617b8ac9240ff198fb6395';
+  var weatherkey = 'THE-WEATHER-API-KEY';
   var weatherurl = 'http://api.openweathermap.org/data/2.5/weather?q=' + weathername + '&appid=' + weatherkey;
   //if the user didn't set up a specific location of where to get the weatherdata from,
   //get the weatherdata from Los Angeles.
